@@ -1,6 +1,26 @@
+
+import { NextRequest } from "next/server";
+export async function GET(request: NextRequest) {
+  const params = request.nextUrl.searchParams;
+
+  const mode = params.get("hub.mode");
+  const token = params.get("hub.verify_token");
+  const challenge = params.get("hub.challenge");
+
+  const tokenOk = token === process.env.WHATSAPP_VERIFY_TOKEN;
+  console.log({ mode, tokenOk });
+
+  if (mode === "subscribe" && tokenOk) {
+    return new Response(challenge, { status: 200 });
+  } else {
+    return new Response("Error, wrong validation token", { status: 403 });
+  }
+}
+
+
 import { verifySignature } from "@/lib/whatsapp/signature";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   // 1. Trupi si tekst bruto
   const rawBody = await request.text();
 
