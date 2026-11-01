@@ -1,5 +1,7 @@
 
 import { NextRequest } from "next/server";
+import { verifySignature } from "@/lib/whatsapp/signature";
+import { parseWebhook } from "@/lib/whatsapp/parse";
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
 
@@ -18,7 +20,7 @@ export async function GET(request: NextRequest) {
 }
 
 
-import { verifySignature } from "@/lib/whatsapp/signature";
+
 
 export async function POST(request: NextRequest) {
   // 1. Trupi si tekst bruto
@@ -35,7 +37,15 @@ export async function POST(request: NextRequest) {
 
   // 4. Vetëm tani e kthejmë në JSON
   const body = JSON.parse(rawBody);
-  console.log(JSON.stringify(body, null, 2));
+  const events = parseWebhook(body);
+
+for (const event of events) {
+  if (event.kind === "message") {
+    console.log(`📩 ${event.name} (${event.from}): ${event.text ?? `[${event.type}]`}`);
+  } else {
+    console.log(`📬 Status ${event.status} ${event.errorCode ?? ""} ${event.errorTitle ?? ""}`);
+  }
+}
 
   return new Response("OK", { status: 200 });
 }
