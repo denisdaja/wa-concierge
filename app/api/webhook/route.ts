@@ -15,3 +15,11 @@ export async function GET(request: NextRequest) {
     return new Response("Error, wrong validation token", { status: 403 });
   }
 }
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+
+  console.log(JSON.stringify(body, null, 2));
+
+  return new Response("OK", { status: 200 });
+}
